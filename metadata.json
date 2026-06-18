@@ -1,0 +1,6 @@
+{
+  "name": "RideLanka",
+  "description": "Premium Sri Lankan Rent A Car Marketplace coordinating manual bookings through WhatsApp.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
