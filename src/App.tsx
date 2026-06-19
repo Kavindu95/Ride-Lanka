@@ -145,7 +145,7 @@ const AppContent: React.FC = () => {
             <div className="absolute inset-0 z-0 opacity-25">
               <img 
                 src="https://images.unsplash.com/photo-1549399542-7cd3cf17a35b?auto=format&fit=crop&w=1800&q=80" 
-                alt="Sri Lanka Coast" 
+                alt="" 
                 className="w-full h-full object-cover"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-gray-950 via-gray-950/80 to-transparent" />
