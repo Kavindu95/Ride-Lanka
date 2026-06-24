@@ -273,6 +273,12 @@ export const BookingForm: React.FC<BookingFormProps> = ({ vehicle, onSuccess }) 
                 <option value="Negombo Beach Boulevard">Negombo Beach Boulevard</option>
                 <option value="Galle Fort Clock Tower">Galle Fort Clock Tower</option>
                 <option value="Kandy Town Center (KCC)">Kandy Town Center (KCC)</option>
+                <option value="Matara Town">Matara Town</option>
+                <option value="Kamburupitiya">Kamburupitiya</option>
+                <option value="Akuressa">Akuressa</option>
+                <option value="Weligama">Weligama</option>
+                <option value="Mirissa">Mirissa</option>
+                <option value="Hiriketiya">Hiriketiya (Dickwella)</option>
               </select>
               <MapPin className="w-4 h-4 text-orange-500 absolute left-3 top-3.5" />
             </div>
