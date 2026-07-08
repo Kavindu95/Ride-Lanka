@@ -190,13 +190,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setVehicles(updated);
   };
 
-  const addBooking = async (
+ const addBooking = async (
     bookingData: Omit<Booking, 'id' | 'user_id' | 'user_name' | 'user_phone' | 'commission' | 'status' | 'created_at'> & {
       doc_nic_passport?: string;
       doc_nic_passport_name?: string;
       doc_driving_license?: string;
       doc_driving_license_name?: string;
-      total_price?: number; // අලුතින් එකතු කරන ලදී
+      total_price?: number;
     }
   ) => {
     if (!currentUser) return { success: false, error: 'You must be logged in to request a booking' };
@@ -215,31 +215,22 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       };
     }
 
+    let calculatedPrice = 0;
+    let commission = 0;
 
+    if (bookingData.vehicle_id.startsWith('tour-')) {
+      calculatedPrice = bookingData.total_price || 120000;
+      commission = Math.round(calculatedPrice * 0.10);
+    } else {
+      const originalVeh = vehicles.find(v => v.id === bookingData.vehicle_id);
+      if (!originalVeh) return { success: false, error: 'Vehicle not found' };
 
-
-if (bookingData.vehicle_id.startsWith('tour-')) {
-  total_price = bookingData.total_price || 120000;
-  commission = Math.round(total_price * 0.10);
-} else {
-  const originalVeh = vehicles.find(v => v.id === bookingData.vehicle_id);
-  if (!originalVeh) return { success: false, error: 'Vehicle not found' };
-
-  const price_per_day = originalVeh.price_per_day;
-  const returnDate = new Date(bookingData.return_date);
-  const days = Math.ceil((returnDate.getTime() - pickupDate.getTime()) / (1000 * 60 * 60 * 24)) || 1;
-  total_price = price_per_day * days;
-  commission = Math.round(total_price * 0.10);
-}
-
-    const originalVeh = vehicles.find(v => v.id === bookingData.vehicle_id);
-    if (!originalVeh) return { success: false, error: 'Vehicle not found' };
-
-    const price_per_day = originalVeh.price_per_day;
-    const returnDate = new Date(bookingData.return_date);
-    const days = Math.ceil((returnDate.getTime() - pickupDate.getTime()) / (1000 * 60 * 60 * 24)) || 1;
-    const total_price = price_per_day * days;
-    const commission = Math.round(total_price * 0.10); // 10% commission
+      const price_per_day = originalVeh.price_per_day;
+      const returnDate = new Date(bookingData.return_date);
+      const days = Math.ceil((returnDate.getTime() - pickupDate.getTime()) / (1000 * 60 * 60 * 24)) || 1;
+      calculatedPrice = price_per_day * days;
+      commission = Math.round(calculatedPrice * 0.10); // 10% commission
+    }
 
     const newBooking: Booking = {
       id: 'b-' + Math.floor(100 + Math.random() * 900),
@@ -251,7 +242,7 @@ if (bookingData.vehicle_id.startsWith('tour-')) {
       pickup_date: bookingData.pickup_date,
       return_date: bookingData.return_date,
       pickup_location: bookingData.pickup_location,
-      total_price,
+      total_price: calculatedPrice,
       commission,
       status: 'pending',
       created_at: new Date().toISOString(),

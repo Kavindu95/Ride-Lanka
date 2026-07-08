@@ -291,7 +291,7 @@ export const db = {
       if (!error && data) {
         lastDbError = null;
         if (data.length > 0) {
-          return data as Vehicle[];
+          return (data as Vehicle[]).filter(v => !v.id.startsWith('tour-'));
         } else {
           console.warn('Supabase fetch vehicles yielded 0 records, falling back to local storage.');
         }
@@ -301,7 +301,8 @@ export const db = {
       }
       console.error('Supabase fetch vehicles failed, utilizing fallback:', error);
     }
-    return JSON.parse(localStorage.getItem('ridelanka_vehicles') || '[]');
+    const local = JSON.parse(localStorage.getItem('ridelanka_vehicles') || '[]');
+    return local.filter((v: Vehicle) => !v.id.startsWith('tour-'));
   },
 
   async saveVehicle(vehicle: Vehicle): Promise<Vehicle> {
@@ -359,6 +360,41 @@ export const db = {
 
   async saveBooking(booking: Booking): Promise<Booking> {
     if (isSupabaseConfigured() && supabase) {
+      // If it's a tour booking, pre-insert a placeholder tour vehicle row in the database
+      // to satisfy the foreign key constraint (bookings_vehicle_id_fkey) on public.bookings.
+      if (booking.vehicle_id.startsWith('tour-')) {
+        try {
+          const { data: existingVeh } = await supabase
+            .from('vehicles')
+            .select('id')
+            .eq('id', booking.vehicle_id)
+            .maybeSingle();
+
+          if (!existingVeh) {
+            const tourVeh: Vehicle = {
+              id: booking.vehicle_id,
+              name: booking.vehicle_name,
+              category: 'Luxury Vehicles',
+              transmission: 'Automatic',
+              fuel_type: 'Hybrid',
+              seats: 5,
+              price_per_day: booking.total_price,
+              deposit_amount: 0,
+              mileage_limit: 'Tour Package Included',
+              description: 'Guided tour package package.',
+              main_image: 'https://images.unsplash.com/photo-1542856391-010fb87dcfed?auto=format&fit=crop&w=1000&q=80',
+              images: [],
+              available: true,
+              owner_contact: 'RideLanka Tours (+94 11 234 5678)'
+            };
+            await supabase.from('vehicles').insert(tourVeh);
+            console.log(`Pre-inserted tour vehicle row to satisfy FK: ${booking.vehicle_id}`);
+          }
+        } catch (vehErr) {
+          console.error('Failed to pre-insert tour vehicle:', vehErr);
+        }
+      }
+
       const { error } = await supabase.from('bookings').upsert(booking);
       if (!error) {
         lastDbError = null;
