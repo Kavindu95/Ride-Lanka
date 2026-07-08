@@ -20,6 +20,7 @@ interface AppContextType {
     doc_nic_passport_name?: string;
     doc_driving_license?: string;
     doc_driving_license_name?: string;
+    total_price?: number;
   }) => Promise<{ success: boolean; error?: string; booking?: Booking }>;
   updateBookingStatus: (bookingId: string, status: BookingStatus) => void;
   refreshDb: () => void;
@@ -195,6 +196,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       doc_nic_passport_name?: string;
       doc_driving_license?: string;
       doc_driving_license_name?: string;
+      total_price?: number; // අලුතින් එකතු කරන ලදී
     }
   ) => {
     if (!currentUser) return { success: false, error: 'You must be logged in to request a booking' };
@@ -212,6 +214,23 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         error: 'Booking requests must be submitted at least 3 days in advance to verify vehicle owner availability.' 
       };
     }
+
+
+
+
+if (bookingData.vehicle_id.startsWith('tour-')) {
+  total_price = bookingData.total_price || 120000;
+  commission = Math.round(total_price * 0.10);
+} else {
+  const originalVeh = vehicles.find(v => v.id === bookingData.vehicle_id);
+  if (!originalVeh) return { success: false, error: 'Vehicle not found' };
+
+  const price_per_day = originalVeh.price_per_day;
+  const returnDate = new Date(bookingData.return_date);
+  const days = Math.ceil((returnDate.getTime() - pickupDate.getTime()) / (1000 * 60 * 60 * 24)) || 1;
+  total_price = price_per_day * days;
+  commission = Math.round(total_price * 0.10);
+}
 
     const originalVeh = vehicles.find(v => v.id === bookingData.vehicle_id);
     if (!originalVeh) return { success: false, error: 'Vehicle not found' };

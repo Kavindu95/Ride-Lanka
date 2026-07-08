@@ -3,7 +3,7 @@ import { useApp } from '../context/AppContext';
 import { Car, User, LogOut, ShieldAlert, KeyRound, LayoutDashboard } from 'lucide-react';
 
 interface HeaderProps {
-  onNavigate: (view: 'home' | 'listings' | 'customer-dashboard' | 'admin-dashboard') => void;
+  onNavigate: (view: 'home' | 'listings' | 'customer-dashboard' | 'admin-dashboard' |'tours') => void;
   currentView: string;
   onOpenAuth: () => void;
 }
@@ -46,7 +46,7 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, currentView, onOpenA
           >
             Find Vehicles
           </button>
-          <a 
+          {/* <a 
             href="#how-it-works" 
             onClick={(e) => {
               onNavigate('home');
@@ -58,7 +58,13 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, currentView, onOpenA
             className="font-sans text-sm font-medium text-gray-600 hover:text-gray-900"
           >
             How it Works
-          </a>
+          </a> */}
+          <button 
+  onClick={() => onNavigate('tours')}
+  className={`font-sans text-sm font-medium transition-colors ${currentView === 'tours' ? 'text-orange-600' : 'text-gray-600 hover:text-gray-900'}`}
+>
+  Tour Packages
+</button>
           <a 
             href="https://wa.me/94723350075" 
             target="_blank" 

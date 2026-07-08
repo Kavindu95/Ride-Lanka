@@ -8,6 +8,7 @@ import { BookingForm } from './components/BookingForm';
 import { Testimonials } from './components/Testimonials';
 import { CustomerDashboard } from './components/CustomerDashboard';
 import { AdminPortal } from './components/AdminPortal';
+import { TourBooking } from './components/TourBooking';
 import { 
   Car, Calendar, Search, MapPin, Sparkles, Navigation, 
   MessageSquare, UserCheck, ShieldCheck, KeyRound, Check, HelpCircle, Info, ChevronRight, Fuel, SlidersHorizontal, Users, RefreshCw
@@ -18,7 +19,7 @@ const AppContent: React.FC = () => {
   const { vehicles, currentUser, logout, supabaseError, clearDbError } = useApp();
   
   // Navigation View modes: 'home' | 'listings' | 'details' | 'customer-dashboard' | 'admin-dashboard'
-  const [currentView, setCurrentView] = useState<'home' | 'listings' | 'details' | 'customer-dashboard' | 'admin-dashboard'>('home');
+  const [currentView, setCurrentView] = useState<'home' | 'listings' | 'details' | 'customer-dashboard' | 'admin-dashboard' | 'tours'>('home');
   const [selectedVehicleId, setSelectedVehicleId] = useState<string | null>(null);
   const [showAuthModal, setShowAuthModal] = useState<boolean>(false);
 
@@ -778,6 +779,13 @@ const AppContent: React.FC = () => {
       {currentView === 'admin-dashboard' && (
         <main className="flex-grow">
           <AdminPortal />
+        </main>
+      )}
+
+        {/* VIEW 6: TOUR PACKAGES CONFIGURATOR */}
+      {currentView === 'tours' && (
+        <main className="flex-grow">
+          <TourBooking />
         </main>
       )}
 
