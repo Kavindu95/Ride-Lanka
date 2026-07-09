@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
-import { X, Lock, Mail, UserPlus, Sparkles, Check } from 'lucide-react';
+import { X, Lock, Mail, UserPlus, Sparkles, Check, Phone } from 'lucide-react';
 
 interface AuthModalProps {
   onClose: () => void;
@@ -215,18 +215,18 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onClose }) => {
 
                 <div>
                   <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
-                    Sri Lankan Telephone Phone
+                    Contact Number (WhatsApp / Mobile)
                   </label>
                   <div className="relative">
                     <input
                       type="text"
                       value={phone}
                       onChange={(e) => setPhone(e.target.value)}
-                      placeholder="+94 7X XXX XXXX"
+                       placeholder="E.g., +94 7X XXX XXXX or international format"
                       required
                       className="w-full pl-10 pr-4 py-2.5 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all text-gray-900"
                     />
-                    <Lock className="w-4 h-4 text-gray-400 absolute left-3.5 top-3.5" />
+                    <Phone className="w-4 h-4 text-gray-400 absolute left-3.5 top-3.5" />
                   </div>
                 </div>
               </>
