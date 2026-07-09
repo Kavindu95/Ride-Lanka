@@ -551,13 +551,21 @@ export const TourBooking: React.FC = () => {
                       </div>
                     )}
 
-                    <button
-                      type="submit"
-                      disabled={isSubmitting}
-                      className="w-full py-3 bg-orange-600 hover:bg-orange-700 text-white font-extrabold text-xs uppercase tracking-wider rounded-xl transition-all shadow-md shrink-0 cursor-pointer disabled:opacity-50"
-                    >
-                      {isSubmitting ? 'Dispatching...' : 'Request Tour Package'}
-                    </button>
+
+                     {!currentUser ? (
+                      <div className="bg-white/10 rounded-xl p-3 text-center border border-white/10">
+                        <span className="block text-xs font-semibold text-gray-300 mb-2">Sign in to request this tour package</span>
+                        <span className="block text-[10px] text-gray-400 font-mono">Use the "Sign In" button in the top navigation.</span>
+                      </div>
+                    ) : (
+                      <button
+                        type="submit"
+                        disabled={isSubmitting}
+                        className="w-full py-3 bg-orange-600 hover:bg-orange-700 text-white font-extrabold text-xs uppercase tracking-wider rounded-xl transition-all shadow-md shrink-0 cursor-pointer disabled:opacity-50"
+                      >
+                        {isSubmitting ? 'Dispatching...' : 'Request Tour Package'}
+                      </button>
+                    )}
                     
                     <span className="block text-[10px] text-gray-400 text-center font-sans">
                       💡 No advance payment required. Coordinator will message you on WhatsApp to finalize the itinerary.

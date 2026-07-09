@@ -62,14 +62,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         const storedUser = localStorage.getItem('ridelanka_current_user');
         if (storedUser) {
           setCurrentUser(JSON.parse(storedUser));
-        } else {
-          // Find standard template user or let user use auth
-          const users = await db.getUsers();
-          const autoUser = users.find(u => u.email === 'kavindugayan024@gmail.com');
-          if (autoUser) {
-            setCurrentUser(autoUser);
-            localStorage.setItem('ridelanka_current_user', JSON.stringify(autoUser));
-          }
+        // } else {
+        //   // Find standard template user or let user use auth
+        //   const users = await db.getUsers();
+        //   const autoUser = users.find(u => u.email === 'kavindugayan024@gmail.com');
+        //   if (autoUser) {
+        //     setCurrentUser(autoUser);
+        //     localStorage.setItem('ridelanka_current_user', JSON.stringify(autoUser));
+        //   }
         }
       } catch (err) {
         console.error('Failed to load initial data:', err);
