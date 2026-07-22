@@ -31,6 +31,7 @@ export const AdminPortal: React.FC = () => {
   const [newVehDesc, setNewVehDesc] = useState<string>('');
   const [newVehImage, setNewVehImage] = useState<string>('https://images.unsplash.com/photo-1549399542-7cd3cf17a35b?auto=format&fit=crop&w=1000&q=80');
   const [newVehOwner, setNewVehOwner] = useState<string>('+94 77 555 4433 (Sahan)');
+  const [newVehRentalOption, setNewVehRentalOption] = useState<'self_drive' | 'with_driver' | 'both'>('both');
 
   // Form handling
   const handleAddNewCar = (e: React.FormEvent) => {
@@ -48,7 +49,8 @@ export const AdminPortal: React.FC = () => {
       main_image: newVehImage,
       images: [newVehImage],
       available: true,
-      owner_contact: newVehOwner
+      owner_contact: newVehOwner,
+      rental_option: newVehRentalOption
     };
 
     if (editingVehicle) {
@@ -77,6 +79,7 @@ export const AdminPortal: React.FC = () => {
     setNewVehDesc(veh.description);
     setNewVehImage(veh.main_image);
     setNewVehOwner(veh.owner_contact);
+    setNewVehRentalOption(veh.rental_option || 'both');
     setShowAddModal(true);
   };
 
@@ -703,6 +706,49 @@ export const AdminPortal: React.FC = () => {
                   required
                   className="w-full text-xs font-semibold p-2.5 border border-gray-200 bg-gray-50 rounded-lg text-gray-950 focus:outline-none focus:ring-1 focus:ring-orange-500"
                 />
+              </div>
+
+              <div>
+                <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2 font-mono">
+                  Rental Drive Options (Tick Required Option)
+                </label>
+                <div className="grid grid-cols-3 gap-2">
+                  <label className={`p-2.5 border rounded-xl flex items-center gap-2 cursor-pointer transition-colors ${newVehRentalOption === 'self_drive' ? 'border-orange-500 bg-orange-50 text-orange-950 font-bold' : 'border-gray-200 bg-gray-50 text-gray-700'}`}>
+                    <input 
+                      type="radio" 
+                      name="rental_option" 
+                      value="self_drive" 
+                      checked={newVehRentalOption === 'self_drive'} 
+                      onChange={() => setNewVehRentalOption('self_drive')}
+                      className="text-orange-600 focus:ring-orange-500"
+                    />
+                    <span className="text-xs">Self Drive</span>
+                  </label>
+
+                  <label className={`p-2.5 border rounded-xl flex items-center gap-2 cursor-pointer transition-colors ${newVehRentalOption === 'with_driver' ? 'border-orange-500 bg-orange-50 text-orange-950 font-bold' : 'border-gray-200 bg-gray-50 text-gray-700'}`}>
+                    <input 
+                      type="radio" 
+                      name="rental_option" 
+                      value="with_driver" 
+                      checked={newVehRentalOption === 'with_driver'} 
+                      onChange={() => setNewVehRentalOption('with_driver')}
+                      className="text-orange-600 focus:ring-orange-500"
+                    />
+                    <span className="text-xs">With Driver</span>
+                  </label>
+
+                  <label className={`p-2.5 border rounded-xl flex items-center gap-2 cursor-pointer transition-colors ${newVehRentalOption === 'both' ? 'border-orange-500 bg-orange-50 text-orange-950 font-bold' : 'border-gray-200 bg-gray-50 text-gray-700'}`}>
+                    <input 
+                      type="radio" 
+                      name="rental_option" 
+                      value="both" 
+                      checked={newVehRentalOption === 'both'} 
+                      onChange={() => setNewVehRentalOption('both')}
+                      className="text-orange-600 focus:ring-orange-500"
+                    />
+                    <span className="text-xs">Both Options</span>
+                  </label>
+                </div>
               </div>
 
               <div>

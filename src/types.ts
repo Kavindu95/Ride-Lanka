@@ -1,4 +1,5 @@
 export type UserRole = 'customer' | 'admin';
+export type RentalDriveOption = 'self_drive' | 'with_driver' | 'both';
 
 export interface User {
   id: string;
@@ -24,6 +25,7 @@ export interface Vehicle {
   images: string[];
   available: boolean;
   owner_contact: string; // Phone number or name of the owner
+  rental_option?: RentalDriveOption; // 'self_drive' | 'with_driver' | 'both'
 }
 
 export type BookingStatus = 'pending' | 'approved' | 'rejected';

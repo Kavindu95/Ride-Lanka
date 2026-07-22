@@ -105,7 +105,7 @@ export const CustomerDashboard: React.FC = () => {
               <Calendar className="w-10 h-10 text-gray-300 mx-auto" />
               <p className="text-sm font-semibold text-gray-800">No active rental inquiries found</p>
               <p className="text-xs text-gray-500 leading-normal max-w-xs mx-auto">
-                Explore our premium line of sedans, vans, luxury sedans, and SUVs in Colombo and submit a 5-day advance checkout request.
+                 Explore our premium line of sedans, vans, luxury sedans, and SUVs in Colombo and submit a 1-day advance checkout request.
               </p>
             </div>
           ) : (
@@ -171,9 +171,9 @@ export const CustomerDashboard: React.FC = () => {
                     <div className="border-t border-gray-100 pt-3 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
                       <div className="flex items-center gap-2 text-xs font-mono">
                         <ShieldCheck className="w-4 h-4 text-orange-600" />
-                        <span className="text-[10px] uppercase text-gray-500 font-bold">Files Security:</span>
+                         <span className="text-[10px] uppercase text-gray-500 font-bold">Verification:</span>
                         <span className="text-gray-700 font-semibold text-[10px]">
-                          📎 {b.doc_nic_passport_name} • 📎 {b.doc_driving_license_name}
+                          Direct WhatsApp Match
                         </span>
                       </div>
 

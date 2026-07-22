@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
-import { 
-  Compass, Calendar, Users, MapPin, Check, 
+import {
+  Compass, Calendar, Users, MapPin, Check,
   ChevronRight, ArrowRight, Landmark, TreePine, HeartHandshake, Info
 } from 'lucide-react';
 
@@ -86,22 +86,26 @@ const TOUR_PACKAGES: TourPackage[] = [
 
 export const TourBooking: React.FC = () => {
   const { currentUser, addBooking } = useApp();
-  
+
   // States
   const [selectedTour, setSelectedTour] = useState<TourPackage | null>(null);
   const [startDate, setStartDate] = useState<string>('');
   const [travellersCount, setTravellersCount] = useState<number>(2);
   const [vehicleTier, setVehicleTier] = useState<'economy' | 'standard' | 'premium'>('economy');
   const [specialRequests, setSpecialRequests] = useState<string>('');
-  
+
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [success, setSuccess] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
 
+  // Guest state if not logged in
+  const [guestName, setGuestName] = useState<string>('');
+  const [guestPhone, setGuestPhone] = useState<string>('');
+
   // Default dates helper
   React.useEffect(() => {
     const today = new Date();
-    today.setDate(today.getDate() + 5); // At least 5 days in advance
+    today.setDate(today.getDate() + 1); // At least 1 day in advance
     const y = today.getFullYear();
     const m = String(today.getMonth() + 1).padStart(2, '0');
     const d = String(today.getDate()).padStart(2, '0');
@@ -137,7 +141,7 @@ export const TourBooking: React.FC = () => {
     setSpecialRequests('');
     setSuccess(false);
     setError('');
-    
+
     // Scroll smoothly to form
     setTimeout(() => {
       document.getElementById('booking-anchor')?.scrollIntoView({ behavior: 'smooth' });
@@ -147,8 +151,8 @@ export const TourBooking: React.FC = () => {
   const handleSubmitBooking = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedTour) return;
-    if (!currentUser) {
-      setError('Please sign in first via the top bar to submit your tour inquiry.');
+    if (!currentUser && (!guestName || !guestPhone)) {
+      setError('Please enter your full name and WhatsApp contact number.');
       return;
     }
 
@@ -159,11 +163,11 @@ export const TourBooking: React.FC = () => {
       // Calculate return date based on duration
       const durationDaysStr = selectedTour.duration.split(' ')[0];
       const durationDays = parseInt(durationDaysStr) || 5;
-      
+
       const start = new Date(startDate);
       const end = new Date(start);
       end.setDate(start.getDate() + durationDays - 1);
-      
+
       const returnDateStr = end.toISOString().split('T')[0];
       const finalPrice = calculateTotalPrice(selectedTour);
 
@@ -174,7 +178,9 @@ export const TourBooking: React.FC = () => {
         pickup_date: startDate,
         return_date: returnDateStr,
         pickup_location: `Colombo / Bandaranaike Airport (CMB)`,
-        total_price: finalPrice
+        total_price: finalPrice,
+        guest_name: currentUser ? undefined : guestName,
+        guest_phone: currentUser ? undefined : guestPhone
       } as any);
 
       if (res.success) {
@@ -204,13 +210,13 @@ export const TourBooking: React.FC = () => {
 
   return (
     <div className="flex-1 bg-slate-50 font-sans">
-      
+
       {/* Visual Hero Header Section */}
       <section className="relative bg-gray-950 text-white py-16 sm:py-24 overflow-hidden text-left">
         <div className="absolute inset-0 z-0 opacity-20">
-          <img 
-            src="https://images.unsplash.com/photo-1588598126483-2410482935f7?auto=format&fit=crop&w=1800&q=80" 
-            alt="Scenic Sri Lanka Train" 
+          <img
+            src="https://images.unsplash.com/photo-1588598126483-2410482935f7?auto=format&fit=crop&w=1800&q=80"
+            alt="Scenic Sri Lanka Train"
             className="w-full h-full object-cover"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-gray-950 via-gray-950/80 to-transparent" />
@@ -221,12 +227,12 @@ export const TourBooking: React.FC = () => {
             <Compass className="w-3.5 h-3.5 text-orange-400" />
             <span>Sri Lankan Tailored Tour Packages</span>
           </div>
-          
+
           <h1 className="font-display font-extrabold text-3xl sm:text-5xl tracking-tight leading-tight max-w-2xl">
             Curated Island Tours with <br />
             <span className="text-orange-500">Private Drivers & Vehicles</span>
           </h1>
-          
+
           <p className="text-sm sm:text-base text-gray-300 leading-relaxed max-w-2xl">
             Explore Sri Lanka at your own pace. Choose from our expertly designed private tour itineraries, select your preferred vehicle tier, and enjoy a dedicated, vetted chauffeur-guide throughout your journey.
           </p>
@@ -250,15 +256,15 @@ export const TourBooking: React.FC = () => {
         {/* Tour Packages Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-left">
           {TOUR_PACKAGES.map((pkg) => (
-            <div 
-              key={pkg.id} 
+            <div
+              key={pkg.id}
               className="bg-white rounded-2xl overflow-hidden border border-gray-150 shadow-xs hover:shadow-md transition-all flex flex-col"
             >
               {/* Package Image Column */}
               <div className="relative h-56 w-full">
-                <img 
-                  src={pkg.image} 
-                  alt={pkg.name} 
+                <img
+                  src={pkg.image}
+                  alt={pkg.name}
                   referrerPolicy="no-referrer"
                   className="w-full h-full object-cover"
                 />
@@ -377,18 +383,18 @@ export const TourBooking: React.FC = () => {
               </div>
             ) : (
               <form onSubmit={handleSubmitBooking} className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                
+
                 {/* Left side inputs: parameters config */}
                 <div className="md:col-span-2 space-y-6">
-                  
+
                   {/* Start Date */}
                   <div className="space-y-1.5">
                     <label className="block text-[10px] font-extrabold text-gray-400 uppercase tracking-widest font-mono">
                       Tour Starting Date
                     </label>
                     <div className="relative">
-                      <input 
-                        type="date" 
+                      <input
+                        type="date"
                         required
                         value={startDate}
                         onChange={(e) => setStartDate(e.target.value)}
@@ -455,22 +461,22 @@ export const TourBooking: React.FC = () => {
                     </label>
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                       {[
-                        { 
-                          id: 'economy', 
-                          name: 'Economy', 
-                          models: ['Suzuki Wagon R', 'Suzuki Japan Alto'], 
+                        {
+                          id: 'economy',
+                          name: 'Economy',
+                          models: ['Suzuki Wagon R', 'Suzuki Japan Alto'],
                           priceLabel: '+0 LKR'
                         },
-                        { 
-                          id: 'standard', 
-                          name: 'Standard', 
-                          models: ['Toyota Axio Hybrid', 'Toyota Prius'], 
+                        {
+                          id: 'standard',
+                          name: 'Standard',
+                          models: ['Toyota Axio Hybrid', 'Toyota Prius'],
                           priceLabel: '+25,000 LKR'
                         },
-                        { 
-                          id: 'premium', 
-                          name: 'Premium', 
-                          models: ['Toyota KDH', 'Nissan Caravan'], 
+                        {
+                          id: 'premium',
+                          name: 'Premium',
+                          models: ['Toyota KDH', 'Nissan Caravan'],
                           priceLabel: '+65,000 LKR'
                         }
                       ].map((vOpt) => (
@@ -497,7 +503,7 @@ export const TourBooking: React.FC = () => {
                     <label className="block text-[10px] font-extrabold text-gray-400 uppercase tracking-widest font-mono">
                       Special requests & Customizations
                     </label>
-                    <textarea 
+                    <textarea
                       value={specialRequests}
                       onChange={(e) => setSpecialRequests(e.target.value)}
                       placeholder="E.g., child seat, specific pick-up time details, route modifications..."
@@ -514,7 +520,7 @@ export const TourBooking: React.FC = () => {
                     <span className="text-xs font-extrabold text-orange-400 font-mono tracking-widest uppercase block">
                       Estimate Calculation
                     </span>
-                    
+
                     <div className="space-y-2 border-b border-white/10 pb-4">
                       <span className="text-sm font-bold block text-white">{selectedTour.name}</span>
                       <span className="text-xs text-gray-400 block">{selectedTour.duration}</span>
@@ -552,12 +558,39 @@ export const TourBooking: React.FC = () => {
                     )}
 
 
-                     {!currentUser ? (
-                      <div className="bg-white/10 rounded-xl p-3 text-center border border-white/10">
-                        <span className="block text-xs font-semibold text-gray-300 mb-2">Sign in to request this tour package</span>
-                        <span className="block text-[10px] text-gray-400 font-mono">Use the "Sign In" button in the top navigation.</span>
+                   
+                    {!currentUser && (
+                      <div className="bg-orange-950/40 border border-orange-500/30 rounded-xl p-4 space-y-3">
+                        <span className="block text-xs font-bold text-orange-400 font-mono uppercase tracking-wider">
+                          Guest Contact Details
+                        </span>
+                        <div>
+                          <label className="block text-[10px] text-gray-300 font-mono uppercase mb-1">Full Name</label>
+                          <input 
+                            type="text" 
+                            value={guestName} 
+                            onChange={(e) => setGuestName(e.target.value)} 
+                            placeholder="E.g., John Doe" 
+                            required
+                            className="w-full p-2.5 text-xs bg-gray-900 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-orange-500"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-[10px] text-gray-300 font-mono uppercase mb-1">Contact Number (WhatsApp)</label>
+                          <input 
+                            type="text" 
+                            value={guestPhone} 
+                            onChange={(e) => setGuestPhone(e.target.value)} 
+                            placeholder="+94 7X XXX XXXX" 
+                            required
+                            className="w-full p-2.5 text-xs bg-gray-900 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-orange-500"
+                          />
+                        </div>
                       </div>
-                    ) : (
+                    )}
+
+
+
                       <button
                         type="submit"
                         disabled={isSubmitting}
@@ -565,8 +598,8 @@ export const TourBooking: React.FC = () => {
                       >
                         {isSubmitting ? 'Dispatching...' : 'Request Tour Package'}
                       </button>
-                    )}
-                    
+                
+
                     <span className="block text-[10px] text-gray-400 text-center font-sans">
                       💡 No advance payment required. Coordinator will message you on WhatsApp to finalize the itinerary.
                     </span>
@@ -582,7 +615,7 @@ export const TourBooking: React.FC = () => {
 
       {/* Safety / Chauffeur Standard blocks */}
       <section className="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-left grid grid-cols-1 md:grid-cols-3 gap-8">
-        
+
         <div className="p-6 bg-white border border-gray-150 rounded-2xl space-y-3 shadow-xs">
           <Landmark className="w-8 h-8 text-orange-600" />
           <h4 className="font-display font-bold text-gray-950 text-base">Government Tourist Drivers</h4>

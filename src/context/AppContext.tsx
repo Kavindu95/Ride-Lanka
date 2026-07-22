@@ -21,6 +21,8 @@ interface AppContextType {
     doc_driving_license?: string;
     doc_driving_license_name?: string;
     total_price?: number;
+    guest_name?: string;
+    guest_phone?: string;
   }) => Promise<{ success: boolean; error?: string; booking?: Booking }>;
   updateBookingStatus: (bookingId: string, status: BookingStatus) => void;
   refreshDb: () => void;
@@ -54,7 +56,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       try {
         const storedVehicles = await db.getVehicles();
         const storedBookings = await db.getBookings();
-        
+
         setVehicles(storedVehicles);
         setBookings(storedBookings);
 
@@ -62,14 +64,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         const storedUser = localStorage.getItem('ridelanka_current_user');
         if (storedUser) {
           setCurrentUser(JSON.parse(storedUser));
-        // } else {
-        //   // Find standard template user or let user use auth
-        //   const users = await db.getUsers();
-        //   const autoUser = users.find(u => u.email === 'kavindugayan024@gmail.com');
-        //   if (autoUser) {
-        //     setCurrentUser(autoUser);
-        //     localStorage.setItem('ridelanka_current_user', JSON.stringify(autoUser));
-        //   }
+          // } else {
+          //   // Find standard template user or let user use auth
+          //   const users = await db.getUsers();
+          //   const autoUser = users.find(u => u.email === 'kavindugayan024@gmail.com');
+          //   if (autoUser) {
+          //     setCurrentUser(autoUser);
+          //     localStorage.setItem('ridelanka_current_user', JSON.stringify(autoUser));
+          //   }
         }
       } catch (err) {
         console.error('Failed to load initial data:', err);
@@ -123,7 +125,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         role: isNewAdmin ? 'admin' : 'customer',
         joined_at: new Date().toISOString()
       };
-      
+
       await db.saveUser(newUser);
       syncErrors();
       setCurrentUser(newUser);
@@ -190,28 +192,32 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setVehicles(updated);
   };
 
- const addBooking = async (
+  const addBooking = async (
     bookingData: Omit<Booking, 'id' | 'user_id' | 'user_name' | 'user_phone' | 'commission' | 'status' | 'created_at'> & {
       doc_nic_passport?: string;
       doc_nic_passport_name?: string;
       doc_driving_license?: string;
       doc_driving_license_name?: string;
       total_price?: number;
+      guest_name?: string;
+      guest_phone?: string;
     }
   ) => {
-    if (!currentUser) return { success: false, error: 'You must be logged in to request a booking' };
+    if (!currentUser && (!bookingData.guest_name || !bookingData.guest_phone)) {
+      return { success: false, error: 'Please enter your name and phone number or sign in to submit a booking' };
+    }
 
-    // Enforce business logic rule: Booking requests must be at least 3 days in advance
+  // Enforce business logic rule: Booking requests must be at least 1 day in advance
     const pickupDate = new Date(bookingData.pickup_date);
     const today = new Date();
-    today.setHours(0,0,0,0);
-    const minLeadTimeMs = 3 * 24 * 60 * 60 * 1000; // 3 days in milliseconds
+    today.setHours(0, 0, 0, 0);
+        const minLeadTimeMs = 1 * 24 * 60 * 60 * 1000; // 1 day in milliseconds
     const timeDiffMs = pickupDate.getTime() - today.getTime();
 
     if (timeDiffMs < minLeadTimeMs) {
-      return { 
-        success: false, 
-        error: 'Booking requests must be submitted at least 3 days in advance to verify vehicle owner availability.' 
+      return {
+        success: false,
+        error: 'Booking requests must be submitted at least 1 day in advance to verify vehicle owner availability.'
       };
     }
 
@@ -232,11 +238,15 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       commission = Math.round(calculatedPrice * 0.10); // 10% commission
     }
 
+    const userId = currentUser ? currentUser.id : ('guest-' + Math.floor(10000 + Math.random() * 90000));
+    const userName = currentUser ? currentUser.full_name : (bookingData.guest_name || 'Guest User');
+    const userPhone = currentUser ? currentUser.phone : (bookingData.guest_phone || 'N/A');
+
     const newBooking: Booking = {
       id: 'b-' + Math.floor(100 + Math.random() * 900),
-      user_id: currentUser.id,
-      user_name: currentUser.full_name,
-      user_phone: currentUser.phone,
+      user_id: userId,
+      user_name: userName,
+      user_phone: userPhone,
       vehicle_id: bookingData.vehicle_id,
       vehicle_name: bookingData.vehicle_name,
       pickup_date: bookingData.pickup_date,
@@ -247,9 +257,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       status: 'pending',
       created_at: new Date().toISOString(),
       doc_nic_passport: bookingData.doc_nic_passport,
-      doc_nic_passport_name: bookingData.doc_nic_passport_name || 'NIC_or_Passport_Attached.pdf',
+      doc_nic_passport_name: bookingData.doc_nic_passport_name || '',
       doc_driving_license: bookingData.doc_driving_license,
-      doc_driving_license_name: bookingData.doc_driving_license_name || 'Driving_License_Attached.jpg'
+       doc_driving_license_name: bookingData.doc_driving_license_name || ''
     };
 
     await db.saveBooking(newBooking);

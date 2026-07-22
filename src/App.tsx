@@ -18,7 +18,7 @@ import {
 const AppContent: React.FC = () => {
   const { vehicles, currentUser, logout, supabaseError, clearDbError } = useApp();
   
-  // Navigation View modes: 'home' | 'listings' | 'details' | 'customer-dashboard' | 'admin-dashboard'
+  // Navigation View modes: 'home' | 'listings' | 'details' | 'customer-dashboard' | 'admin-dashboard' | 'tours'
   const [currentView, setCurrentView] = useState<'home' | 'listings' | 'details' | 'customer-dashboard' | 'admin-dashboard' | 'tours'>('home');
   const [selectedVehicleId, setSelectedVehicleId] = useState<string | null>(null);
   const [showAuthModal, setShowAuthModal] = useState<boolean>(false);
@@ -144,7 +144,11 @@ const AppContent: React.FC = () => {
           <section className="relative bg-gray-950 text-white py-20 sm:py-28 overflow-hidden">
             {/* Background Image of beautiful Sri Lanka roads */}
             <div className="absolute inset-0 z-0 opacity-25">
-            
+              <img 
+                src="https://images.unsplash.com/photo-1549399542-7cd3cf17a35b?auto=format&fit=crop&w=1800&q=80" 
+                alt="Sri Lanka Coast" 
+                className="w-full h-full object-cover"
+              />
               <div className="absolute inset-0 bg-gradient-to-t from-gray-950 via-gray-950/80 to-transparent" />
             </div>
 
@@ -713,11 +717,13 @@ const AppContent: React.FC = () => {
                     </div>
                     <div className="flex justify-between border-b border-gray-100/60 pb-1.5">
                       <span className="text-gray-400">Minimum Lead Time:</span>
-                      <span className="font-semibold text-orange-655 font-mono">5 Days in Advance</span>
+                      <span className="font-semibold text-orange-655 font-mono">1 Day in Advance</span>
                     </div>
                     <div className="flex justify-between border-b border-gray-100/60 pb-1.5">
-                      <span className="text-gray-400">Security Pre-Auth Required:</span>
-                      <span className="font-bold text-emerald-700 font-mono uppercase text-[10px]">NIC/Driving Licence Attachments</span>
+                      <span className="text-gray-400">Drive Option:</span>
+                      <span className="font-bold text-gray-900 font-mono text-[11px]">
+                        {activeVehicle.rental_option === 'self_drive' ? 'Self Drive Only' : activeVehicle.rental_option === 'with_driver' ? 'With Driver Only' : 'Self Drive / With Driver'}
+                      </span>
                     </div>
                     <div className="flex justify-between border-b border-gray-100/60 pb-1.5">
                       <span className="text-gray-400">Owner Direct Thread:</span>
@@ -757,7 +763,7 @@ const AppContent: React.FC = () => {
                   ⚡ Coordinator Security Double Lock
                 </span>
                 <p className="leading-relaxed">
-                  We match checkout parameters across local owners on WhatsApp within 2 hours. Your files are encrypted during authorization and shredded immediately following successful return.
+                  We match checkout parameters across local owners on WhatsApp within 2 hours to confirm vehicle availability.
                 </p>
               </div>
 
@@ -782,7 +788,7 @@ const AppContent: React.FC = () => {
         </main>
       )}
 
-        {/* VIEW 6: TOUR PACKAGES CONFIGURATOR */}
+      {/* VIEW 6: TOUR PACKAGES CONFIGURATOR */}
       {currentView === 'tours' && (
         <main className="flex-grow">
           <TourBooking />
