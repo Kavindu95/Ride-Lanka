@@ -60,7 +60,8 @@ const INITIAL_VEHICLES: Vehicle[] = [
       'https://images.unsplash.com/photo-1549399542-7cd3cf17a35b?auto=format&fit=crop&w=1000&q=80'
     ],
     available: true,
-    owner_contact: '+94 77 123 4567 (Samith)'
+    owner_contact: '+94 77 123 4567 (Samith)',
+    rental_option: 'both'
   },
   {
     id: 'v-2',
@@ -80,7 +81,8 @@ const INITIAL_VEHICLES: Vehicle[] = [
       'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?auto=format&fit=crop&w=1000&q=80'
     ],
     available: true,
-    owner_contact: '+94 77 987 6543 (Nimal)'
+    owner_contact: '+94 77 987 6543 (Nimal)',
+    rental_option: 'both'
   },
   {
     id: 'v-3',
@@ -99,7 +101,8 @@ const INITIAL_VEHICLES: Vehicle[] = [
       'https://images.unsplash.com/photo-1494976388531-d1058494cdd8?auto=format&fit=crop&w=1000&q=80'
     ],
     available: true,
-    owner_contact: '+94 71 445 2211 (Rohan)'
+    owner_contact: '+94 71 445 2211 (Rohan)',
+    rental_option: 'self_drive'
   },
   {
     id: 'v-4',
@@ -118,7 +121,8 @@ const INITIAL_VEHICLES: Vehicle[] = [
       'https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1000&q=80'
     ],
     available: true,
-    owner_contact: '+94 72 223 3344 (Kasun)'
+    owner_contact: '+94 72 223 3344 (Kasun)',
+    rental_option: 'self_drive'
   },
   {
     id: 'v-5',
@@ -137,7 +141,8 @@ const INITIAL_VEHICLES: Vehicle[] = [
       'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=1000&q=80'
     ],
     available: true,
-    owner_contact: '+94 75 777 8888 (Dinesh)'
+    owner_contact: '+94 75 777 8888 (Dinesh)',
+    rental_option: 'with_driver'
   },
   {
     id: 'v-6',
@@ -156,7 +161,8 @@ const INITIAL_VEHICLES: Vehicle[] = [
       'https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?auto=format&fit=crop&w=1000&q=80'
     ],
     available: true,
-    owner_contact: '+94 77 111 2222 (Shanka)'
+    owner_contact: '+94 77 111 2222 (Shanka)',
+    rental_option: 'both'
   }
 ];
 
@@ -463,13 +469,17 @@ CREATE TABLE IF NOT EXISTS public.vehicles (
     main_image TEXT NOT NULL,
     images JSONB DEFAULT '[]'::jsonb,
     available BOOLEAN DEFAULT TRUE,
-    owner_contact TEXT NOT NULL
+    owner_contact TEXT NOT NULL,
+    rental_option TEXT CHECK (rental_option IN ('self_drive', 'with_driver', 'both')) DEFAULT 'both'
 );
+
+-- If you already have the vehicles table created in Supabase, run this ALTER command:
+-- ALTER TABLE public.vehicles ADD COLUMN IF NOT EXISTS rental_option TEXT CHECK (rental_option IN ('self_drive', 'with_driver', 'both')) DEFAULT 'both';
 
 -- 4. CREATE BOOKINGS TRANSACTIONS TABLE
 CREATE TABLE IF NOT EXISTS public.bookings (
     id TEXT PRIMARY KEY,
-    user_id TEXT NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
+    user_id TEXT NOT NULL,
     user_name TEXT NOT NULL,
     user_phone TEXT NOT NULL,
     vehicle_id TEXT NOT NULL REFERENCES public.vehicles(id) ON DELETE CASCADE,
@@ -486,6 +496,9 @@ CREATE TABLE IF NOT EXISTS public.bookings (
     doc_driving_license TEXT,
     doc_driving_license_name TEXT
 );
+
+-- If user_id previously had a foreign key constraint to users table, drop it so guest bookings work:
+-- ALTER TABLE public.bookings DROP CONSTRAINT IF EXISTS bookings_user_id_fkey;
 
 -- 5. DISABLE ROW LEVEL SECURITY (RLS) SO PUBLIC READ/WRITE CAN OPERATE SAFELY
 ALTER TABLE public.users DISABLE ROW LEVEL SECURITY;
